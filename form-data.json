@@ -1,0 +1,109 @@
+{
+  "potatoCategories": {
+    "Table": ["Jyoti", "Badshah", "Lauvkar", "Diamond", "Colombo", "Bahar (3797)", "Surya", "Amber Light", "LR", "Chipsona-1", "Chipsona-3", "KCM", "Hermes", "Taurus", "Frysona", "FryOm", "Santana", "Innovator", "HYFM", "Jamania", "Uday", "Mohan", "Other (CPRI)"],
+    "Chips": ["LR", "Chipsona-1", "Chipsona-3", "KCM", "Hermes", "Taurus"],
+    "Fries": ["Frysona", "FryOm", "Santana", "Innovator", "HYFM", "Kennebeck"],
+    "Flakes": ["LR", "Chipsona-1", "Chipsona-3", "Hermes", "Taurus", "Frysona", "FryOm", "Santana", "Innovator", "HYFM", "Kennebeck"],
+    "Seeds": ["Jyoti", "Badshah", "Lauvkar", "Diamond", "Colombo", "Bahar (3797)", "Surya", "Amber Light", "LR", "Chipsona-1", "Chipsona-3", "KCM", "Hermes", "Taurus", "Frysona", "FryOm", "Santana", "Innovator", "HYFM", "Jamania", "Uday", "Mohan", "Other (CPRI)"],
+    "Minituber": ["Jyoti", "Badshah", "Lauvkar", "Diamond", "Colombo", "Bahar (3797)", "Surya", "Amber Light", "LR", "Chipsona-1", "Chipsona-3", "KCM", "Hermes", "Taurus", "Frysona", "FryOm", "Santana", "Innovator", "HYFM", "Jamania", "Uday", "Mohan", "Other (CPRI)"]
+  },
+  "ownerFlow": [
+    {
+      "id": "location",
+      "key": "location",
+      "question": "Where is your facility located?",
+      "subtext": "Helps in determining local climate and subsidies.",
+      "type": "text",
+      "placeholder": "e.g. Agra, Uttar Pradesh"
+    },
+    {
+      "id": "storage_purpose",
+      "key": "purpose",
+      "question": "What is the primary purpose of storage?",
+      "subtext": "Temperature settings vary greatly between seeds and processing potatoes.",
+      "type": "selection",
+      "options": ["Consumption (Table)", "Processing (Chips/Fries)", "Seed Storage"]
+    },
+    {
+      "id": "storage_type",
+      "key": "storageMethod",
+      "question": "What storage technology do you use?",
+      "type": "selection",
+      "options": ["Traditional Cold Storage (2-4°C)", "CIPC Treated (8-10°C)", "MA / CA Storage"]
+    },
+    {
+      "id": "capacity",
+      "key": "capacity",
+      "question": "What is your total storage capacity?",
+      "type": "selection",
+      "options": ["< 1,000 MT", "1,000 – 5,000 MT", "5,000 – 10,000 MT", "> 10,000 MT"]
+    },
+    {
+      "id": "category",
+      "key": "category",
+      "question": "Which category best describes your crop?",
+      "type": "selection",
+      "options": ["Table", "Chips", "Fries", "Flakes", "Seeds", "Minituber"]
+    },
+    {
+      "id": "variety",
+      "key": "variety",
+      "question": "Which specific variety do you store most?",
+      "type": "selection",
+      "options": []
+    },
+    {
+      "id": "issues",
+      "key": "issues",
+      "question": "What is the primary challenge?",
+      "subtext": "Select your biggest pain points.",
+      "type": "multi-selection",
+      "options": [
+        "Premature Sprouting",
+        "Excessive Weight Loss (Dehydration)",
+        "Fungal Rot / Bacterial Decay",
+        "Pest or Insect Infestation",
+        "High Energy / Electricity Costs",
+        "Difficulty Timing Market Release"
+      ]
+    }
+  ],
+  "builderFlow": [
+    {
+      "id": "location",
+      "key": "location",
+      "question": "Where do you plan to build?",
+      "subtext": "Affects land cost and available NHB/NCCD subsidies.",
+      "type": "text",
+      "placeholder": "e.g. Hooghly, West Bengal"
+    },
+    {
+      "id": "chamber_type",
+      "key": "chamberType",
+      "question": "What type of facility are you planning?",
+      "type": "selection",
+      "options": ["Single Chamber (One Variety)", "Multi-Chamber (Multiple Varieties)"]
+    },
+    {
+      "id": "scale",
+      "key": "targetCapacity",
+      "question": "What is your target scale?",
+      "type": "selection",
+      "options": ["< 1,000 MT", "1,000 – 5,000 MT", "5,000 – 10,000 MT", "> 10,000 MT"]
+    },
+    {
+      "id": "budget",
+      "key": "budget",
+      "question": "What is your estimated investment budget?",
+      "type": "selection",
+      "options": ["< ₹2 Crore", "₹2 – 5 Crore", "₹5 – 10 Crore", "₹10 – 20 Crore", "> ₹20 Crore"]
+    },
+    {
+      "id": "target",
+      "key": "targetUsers",
+      "question": "What is your primary business model?",
+      "type": "selection",
+      "options": ["Rental (Multiple Farmers)", "Own Crop Storage", "Trader / Bulk Stockist"]
+    }
+  ]
+}

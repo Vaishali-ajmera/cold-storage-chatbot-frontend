@@ -1,0 +1,222 @@
+/* Potato Bazaar - Light Design System (Calm & Elegant) */
+
+:root {
+  /* Page & Surfaces */
+  --bg-page: #FBFBFA;       
+  --bg-card: #F2F2F0;       
+  --bg-card-hover: #EBEBE8;
+  --bg-selected: #E8F5E9;   
+  
+  /* Text */
+  --text-primary: #222222;   
+  --text-secondary: #717171;
+  --text-muted: #B0B0B0;
+  
+  /* Accents & Actions */
+  --accent-primary: #059669; /* Muted Emerald */
+  --accent-surface: #E8F5E9;
+  --border-subtle: #E5E7EB;
+  --border-divider: #F3F4F6;
+  
+  /* Utilities */
+  --shadow-subtle: 0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.04);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+
+/* Base resets */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography Scale */
+h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 1.125rem; font-weight: 600; }
+h3 { font-size: 0.9375rem; font-weight: 600; }
+p { font-size: 0.875rem; line-height: 1.5; }
+
+/* Selection Indicators */
+.radio-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid #D1D5DB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: white;
+}
+.radio-circle.active {
+  border-color: var(--accent-primary);
+  border-width: 5px;
+}
+
+.checkbox-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1.5px solid #D1D5DB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: white;
+}
+.checkbox-box.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+/* Layout Utilities */
+.immersive-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--bg-page);
+  position: relative;
+}
+
+.main-content {
+  width: 100%;
+  max-width: 480px; 
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+/* Airbnb Style Menu Popover */
+.menu-popover {
+  position: absolute;
+  top: 60px;
+  right: 24px;
+  width: 240px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+  border: 1px solid rgba(0,0,0,0.04);
+  z-index: 100;
+  overflow: hidden;
+  animation: pop-in 0.2s ease-out;
+}
+
+@keyframes pop-in {
+  from { transform: scale(0.95) translateY(-10px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.menu-item {
+  width: 100%;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 400;
+  color: #222222;
+  transition: background 0.2s;
+}
+
+.menu-item:hover {
+  background: #F7F7F7;
+}
+
+.menu-divider {
+  height: 1px;
+  background: #EBEBEB;
+  margin: 4px 0;
+}
+
+/* Form Inputs */
+input[type="text"] {
+  background-color: var(--bg-card);
+  border: 1px solid #DDDDDD;
+  border-radius: 9999px; /* Pill shape */
+  padding: 14px 24px;
+  width: 100%;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+}
+
+input[type="text"]:focus {
+  background-color: #F7F7F7; /* Match hover bg or slightly different but not pure white */
+  border-color: #B0B0B0;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+input[type="text"]::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Chat List & Individual Chat Styles */
+.chat-list-item {
+  padding: 16px;
+  border-bottom: 1px solid #F3F4F6;
+  transition: background 0.2s;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-list-item:hover {
+  background-color: #F7F7F7;
+}
+
+.intake-summary-card {
+  background-color: white;
+  border: 1px solid #EBEBEB;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.intake-summary-card:hover {
+  background-color: #F7F7F7;
+  border-color: #DDDDDD;
+  transform: translateY(-1px);
+}
+
+.chat-bubble-user {
+  background-color: var(--accent-primary);
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+  padding: 12px 16px;
+  max-width: 85%;
+  align-self: flex-end;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.chat-bubble-bot {
+  background-color: #F7F7F7;
+  color: var(--text-primary);
+  border-radius: 18px 18px 18px 4px;
+  padding: 12px 16px;
+  max-width: 85%;
+  align-self: flex-start;
+  border: 1px solid #EBEBEB;
+}
+
+/* Animations */
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slide-up { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+.animate-slide-up { animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

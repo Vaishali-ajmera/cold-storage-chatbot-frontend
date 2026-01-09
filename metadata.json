@@ -1,0 +1,5 @@
+{
+  "name": "PotatoGuard AI",
+  "description": "A specialized advisory chatbot for potato cold storage, serving both existing facility owners and prospective builders with context-aware, domain-specific guidance.",
+  "requestFramePermissions": []
+}
