@@ -17,7 +17,7 @@ export const IntakeDetailsModal: React.FC<IntakeDetailsModalProps> = ({
 
   // Format the user choice for display
   const formatUserChoice = (choice: string) => {
-    return choice === 'existing' ? 'Cold Storage Owner' : 'Planning to Build';
+    return choice === 'existing' ? 'Potato Cold Storage Owner' : 'Planning to Build a New Cold Storage';
   };
 
   // Format field names to be more readable
@@ -65,54 +65,46 @@ export const IntakeDetailsModal: React.FC<IntakeDetailsModalProps> = ({
       <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-start justify-between pt-6 px-6 pb-2 border-b border-gray-50">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">Intake Details</h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <h1 className="text-[18px] font-bold text-gray-900 leading-tight">Intake Details</h1>
+              <p className="mt-1.5 text-[13px] font-semibold text-emerald-600">
                 {formatUserChoice(userChoice)}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition"
+              className="p-2 -mr-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-all"
             >
-              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(80vh-140px)]">
+          <div className="px-6 pt-2 pb-6 overflow-y-auto max-h-[calc(80vh-140px)] scrollbar-hide">
             {intakeData && Object.keys(intakeData).length > 0 ? (
-              <div className="space-y-4">
+              <div className="divide-y divide-gray-100">
                 {Object.entries(intakeData).map(([key, value]) => (
-                  <div key={key} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <div className="text-sm font-semibold text-gray-700 mb-1">
+                  <div key={key} className="py-3 flex flex-col items-start gap-1 hover:bg-gray-50 -mx-2 px-2 rounded transition-colors">
+                    <div className="text-xs font-medium uppercase tracking-wider text-gray-400">
                       {formatFieldName(key)}
                     </div>
-                    <div className="text-base text-gray-900">
+                    <div className="text-sm font-medium text-gray-900">
                       {formatFieldValue(value)}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
+              <div className="py-12 text-center text-gray-400 italic">
                 No intake data available
               </div>
             )}
           </div>
 
-          {/* Footer */}
-          <div className="flex justify-end p-6 border-t border-gray-200">
-            <button
-              onClick={onClose}
-              className="px-6 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition"
-            >
-              Close
-            </button>
-          </div>
+          {/* Footer removed for minimalist look as requested */}
         </div>
       </div>
     </>

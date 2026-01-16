@@ -1,93 +1,204 @@
-import React from 'react';
-import { ChatMessage as ChatMessageType, MCQOption } from '../../api/chat.api';
+import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { ChatMessage as ChatMessageType } from '../../api/chat.api';
 import { formatTimestamp } from '../../utils/dateFormatter';
 
 interface MessageBubbleProps {
   message: ChatMessageType;
   onSuggestionClick?: (question: string) => void;
   onMCQSelect?: (messageId: string, option: string) => void;
+  isTyping?: boolean;
+  onTypingComplete?: () => void;
 }
+
+// Preprocess markdown text to ensure proper rendering
+const preprocessMarkdown = (text: string): string => {
+  if (!text) return '';
+  
+  // Unescape common escaped markdown characters
+  let processed = text
+    .replace(/\\\*\\\*/g, '**')  // Unescape bold
+    .replace(/\\\*/g, '*')        // Unescape italic/list
+    .replace(/\\#/g, '#')         // Unescape headers
+    .replace(/\\_/g, '_')         // Unescape underscores
+    .replace(/\\`/g, '`');        // Unescape code
+  
+  // Handle inline bullet points - convert "• " to proper markdown list items
+  // First, convert inline bullets (after ":" or "." followed by "•") to proper line breaks
+  processed = processed.replace(/([.:])\s*•\s*/g, '$1\n\n• ');
+  // Convert remaining inline bullets to line breaks
+  processed = processed.replace(/\s+•\s+/g, '\n\n• ');
+  // Convert bullet character to markdown asterisk for proper rendering
+  processed = processed.replace(/^•\s*/gm, '* ');
+  processed = processed.replace(/\n•\s*/g, '\n* ');
+  
+  // Ensure proper line breaks for lists (need blank line before list)
+  processed = processed.replace(/([^\n])\n\* /g, '$1\n\n* ');
+  processed = processed.replace(/([^\n])\n- /g, '$1\n\n- ');
+  processed = processed.replace(/([^\n])\n(\d+)\. /g, '$1\n\n$2. ');
+  
+  return processed;
+};
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({
   message,
   onSuggestionClick,
   onMCQSelect,
+  isTyping = false,
+  onTypingComplete,
 }) => {
   const isUser = message.sender === 'user';
+  const [displayedText, setDisplayedText] = useState<string>('');
+  const [typingDone, setTypingDone] = useState(!isTyping);
+  
+  const fullText = message.message_text || '';
+
+  // Typing effect for bot messages
+  useEffect(() => {
+    if (!isUser && isTyping && fullText) {
+      setDisplayedText('');
+      setTypingDone(false);
+      
+      let currentIndex = 0;
+      const typingInterval = setInterval(() => {
+        if (currentIndex < fullText.length) {
+          setDisplayedText(fullText.slice(0, currentIndex + 1));
+          currentIndex++;
+        } else {
+          clearInterval(typingInterval);
+          setTypingDone(true);
+          onTypingComplete?.();
+        }
+      }, 15); // 15ms per character for smooth typing
+      
+      return () => clearInterval(typingInterval);
+    } else if (!isTyping) {
+      setDisplayedText(fullText);
+      setTypingDone(true);
+    }
+  }, [isUser, isTyping, fullText, onTypingComplete]);
+
+  const textToShow = isUser ? fullText : (isTyping && !typingDone ? displayedText : fullText);
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} w-full animate-fade-in`}>
-      <div className={`flex flex-col max-w-[85%] md:max-w-[75%] ${isUser ? 'items-end' : 'items-start'}`}>
-        {/* Message Container */}
-        <div
-          className={`relative px-4 py-3 rounded-2xl shadow-sm ${
-            isUser
-              ? 'bg-emerald-600 text-white rounded-tr-none'
-              : 'bg-gray-50 text-gray-800 border border-gray-100 rounded-tl-none'
-          }`}
-        >
-          <div className={`text-[15px] leading-relaxed whitespace-pre-wrap font-medium ${isUser ? 'text-white' : 'text-gray-800'}`}>
-            {message.message_text}
-          </div>
-          
-          {/* Subtle Timestamp */}
-          <div className={`mt-2 text-[10px] font-bold uppercase tracking-wider ${isUser ? 'text-emerald-100/70' : 'text-gray-400'}`}>
-            {formatTimestamp(message.created_at)}
-          </div>
+    <div className={`flex w-full mb-8 ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}>
+      <div className={`flex gap-3 max-w-[85%] md:max-w-[75%] ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+        {/* Avatar */}
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-white/50 ${
+          isUser ? 'bg-[#10B981] text-white' : 'bg-emerald-600'
+        }`}>
+          {isUser ? (
+            <span className="text-[9px] font-bold">YOU</span>
+          ) : (
+            <span className="text-[9px] font-black text-white">PG</span>
+          )}
         </div>
 
-        {/* MCQ Options - Rendered as Structured Cards */}
-        {message.mcq_options && (
-          <div className="mt-4 w-full space-y-2.5 animate-slide-in-bottom">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1">Choose an option</p>
-            {message.mcq_options.options.map((option, index) => (
-              <button
-                key={index}
-                onClick={() => onMCQSelect?.(message.id, option)}
-                disabled={!!message.mcq_selected_option}
-                className={`w-full text-left px-5 py-3.5 rounded-2xl border transition-all duration-200 active:scale-[0.98] ${
-                  message.mcq_selected_option === option
-                    ? 'border-emerald-500 bg-emerald-50 text-emerald-900 shadow-md shadow-emerald-100'
-                    : message.mcq_selected_option
-                    ? 'border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed'
-                    : 'border-emerald-100 bg-white hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-50 text-gray-700 shadow-sm'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-sm">{option}</span>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                    message.mcq_selected_option === option
-                      ? 'border-emerald-500 bg-emerald-500'
-                      : 'border-emerald-200 bg-white'
-                  }`}>
-                    {message.mcq_selected_option === option && (
-                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    )}
+        {/* Message Content Area */}
+        <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
+          {/* Main Bubble - Only show if there's message text */}
+          {fullText && fullText.trim() && (
+            <div
+              className={`px-4 py-3 ${
+                isUser
+                  ? 'bg-emerald-600 text-white rounded-2xl rounded-tr-sm'
+                  : 'bg-white border border-gray-200 text-gray-900 rounded-2xl rounded-tl-sm shadow-sm'
+              }`}
+            >
+              {isUser ? (
+                <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                  {textToShow}
+                </div>
+              ) : (
+                <div className="markdown-content">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {preprocessMarkdown(textToShow)}
+                  </ReactMarkdown>
+                  {/* Blinking cursor while typing */}
+                  {isTyping && !typingDone && (
+                    <span className="inline-block w-0.5 h-4 bg-emerald-600 ml-0.5 animate-pulse align-middle" />
+                  )}
+                </div>
+              )}
+              
+              {/* Only show timestamp when typing is done */}
+              {typingDone && (
+                <div className={`mt-1.5 text-[10px] font-medium ${isUser ? 'text-white/60' : 'text-gray-400'}`}>
+                  {formatTimestamp(message.created_at)}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* MCQ Options - Only for bot messages */}
+          {message.mcq_options && !isUser && (
+            <div className="mt-6 w-full space-y-3 animate-slide-up">
+              {/* MCQ Question */}
+              {message.mcq_options.question && (
+                <p className="text-[15px] font-bold text-gray-900 mb-3">
+                  {message.mcq_options.question}
+                </p>
+              )}
+
+              {/* Show selected option as user message */}
+              {message.mcq_selected_option && (
+                <div className="flex justify-end mb-4">
+                  <div className="flex gap-3 max-w-[85%] md:max-w-[75%] flex-row-reverse">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-white/50 bg-[#10B981] text-white">
+                      <span className="text-[9px] font-bold">YOU</span>
+                    </div>
+                    <div className="px-4 py-3 bg-emerald-600 text-white rounded-2xl rounded-tr-sm">
+                      <div className="text-sm leading-relaxed">
+                        {message.mcq_selected_option}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </button>
-            ))}
-          </div>
-        )}
+              )}
 
-        {/* Suggested Questions - Styled as Pills */}
-        {message.suggested_questions && message.suggested_questions.length > 0 && !message.mcq_options && (
-          <div className="mt-4 flex flex-wrap gap-2">
-            {message.suggested_questions.map((question, index) => (
-              <button
-                key={index}
-                onClick={() => onSuggestionClick?.(question)}
-                className="px-4 py-2 bg-white border border-emerald-100 rounded-full text-sm font-semibold text-emerald-700 hover:bg-emerald-50 hover:border-emerald-500 hover:shadow-md transition-all active:scale-95 shadow-sm"
-              >
-                {question}
-              </button>
-            ))}
-          </div>
-        )}
+              {/* Show options only if not yet selected */}
+              {!message.mcq_selected_option && (
+                <>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Choose an option</p>
+                  {message.mcq_options.options.map((option, index) => (
+                    <div
+                      key={index}
+                      onClick={() => onMCQSelect?.(message.id, option)}
+                      className="selection-card"
+                    >
+                      <span className="text-[14px] font-bold">{option}</span>
+                    </div>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Suggested Questions - Only for bot messages, show only after typing is complete */}
+          {message.suggested_questions && message.suggested_questions.length > 0 && !message.mcq_options && !isUser && typingDone && (
+            <div className="mt-6 w-full space-y-3 animate-slide-up">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest ml-1">Suggested for you</p>
+              {message.suggested_questions.map((question, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  onClick={() => onSuggestionClick?.(question)}
+                  className="selection-card transition-all duration-300"
+                >
+                  <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shrink-0">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                      <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="text-[14px] font-bold text-left">{question}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
-
 };

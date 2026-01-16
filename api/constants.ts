@@ -15,6 +15,7 @@ export const INTAKE_ENDPOINTS = {
 
 // Chat endpoints
 export const CHAT_ENDPOINTS = {
+  CREATE_SESSION: '/sessions/create/',
   ASK_QUESTION: '/ask/',
   ANSWER_MCQ: '/mcq-response/',
   LIST_SESSIONS: '/sessions/',

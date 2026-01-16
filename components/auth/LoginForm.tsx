@@ -57,19 +57,17 @@ export const LoginForm: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 px-4 py-12 overflow-y-auto">
-      <div className="max-w-md w-full mx-auto bg-white rounded-2xl shadow-xl p-8">
+    <div className="min-h-screen bg-white px-4 py-12 overflow-y-auto">
+      <div className="max-w-md w-full mx-auto bg-white border border-gray-200 rounded-xl shadow-md p-8">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-emerald-100 rounded-full mb-4">
-            <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-            </svg>
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-emerald-100 rounded-xl mb-4">
+            <span className="text-emerald-600 font-black text-xl">PG</span>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to Cold Storage Advisory</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+          <p className="text-gray-500 text-sm">Sign in to Potato Guru AI</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -83,7 +81,7 @@ export const LoginForm: React.FC = () => {
               onChange={handleChange}
               placeholder="you@example.com"
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200"
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-emerald-600 focus:outline-none transition-colors"
             />
           </div>
 
@@ -101,12 +99,12 @@ export const LoginForm: React.FC = () => {
                 onChange={handleChange}
                 placeholder="••••••••"
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200 pr-12"
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-emerald-600 focus:outline-none transition-colors pr-12"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 {showPassword ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,15 +141,15 @@ export const LoginForm: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3.5 px-6 rounded-xl font-semibold text-white transition-all duration-200 shadow-lg ${
+            className={`w-full py-3 px-6 rounded-lg font-semibold text-white transition-colors ${
               isLoading
-                ? 'bg-gray-400 cursor-not-allowed shadow-none'
-                : 'bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                ? 'bg-gray-300 cursor-not-allowed'
+                : 'bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800'
             }`}
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 Signing in...
               </span>
             ) : (
@@ -160,7 +158,7 @@ export const LoginForm: React.FC = () => {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-gray-500">
           Don't have an account?{' '}
           <Link to="/signup" className="text-emerald-600 hover:text-emerald-700 font-medium">
             Sign up

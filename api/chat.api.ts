@@ -38,12 +38,14 @@ interface AskQuestionResponse {
   };
 }
 
+
 interface AnswerMCQResponse {
+  status: boolean;
   message: string;
   data: {
     session_id: string;
-    type: 'text';
-    response_message: string;
+    type: 'answer';
+    message: string;
     suggestions: string[];
     remaining_questions: number;
   };
@@ -90,7 +92,21 @@ interface GetSessionIntakeResponse {
   };
 }
 
+interface CreateSessionResponse {
+  status: boolean;
+  message: string;
+  data: {
+    session_id: string;
+    welcome_message: string;
+  };
+}
+
 export const chatAPI = {
+  createSession: async (): Promise<CreateSessionResponse> => {
+    const response = await apiClient.post(CHAT_ENDPOINTS.CREATE_SESSION, {});
+    return response.data;
+  },
+
   askQuestion: async (question: string, sessionId: string | null = null): Promise<AskQuestionResponse> => {
     const payload: any = { question };
     if (sessionId) payload.session_id = sessionId;
