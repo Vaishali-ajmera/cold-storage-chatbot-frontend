@@ -49,9 +49,6 @@ A modern, ChatGPT-style advisory chatbot for cold storage management built with 
 3. **Configure environment variables:**
    
    Create a `.env` file in the root directory:
-   ```env
-   VITE_API_URL=http://localhost:8000/api
-   ```
    
    Update `VITE_API_URL` to point to your backend API.
 
