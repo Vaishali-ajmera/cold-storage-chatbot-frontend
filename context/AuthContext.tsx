@@ -19,15 +19,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const token = getAccessToken();
-    const savedUser = getUser();
-    
-    if (token && savedUser) {
-      setUser(savedUser);
-    }
-    
-    setIsLoading(false);
+    // Verify token by calling user profile API
+    const verifyToken = async () => {
+      const token = getAccessToken();
+      
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await authAPI.getUserProfile();
+        const userData = response.data;
+        
+        saveUser(userData);
+        setUser(userData);
+      } catch (error) {
+        console.error('Token verification failed:', error);
+        clearTokens();
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    verifyToken();
   }, []);
 
   const signup = async (userData: SignupRequest) => {
