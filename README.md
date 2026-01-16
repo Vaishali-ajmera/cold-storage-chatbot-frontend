@@ -76,47 +76,6 @@ To preview the production build:
 ```bash
 npm run preview
 ```
-
-## 🏗️ Project Structure
-
-```
-cold-storage-fe/
-├── api/                    # API configuration and services
-│   ├── config.ts          # Axios instance with interceptors
-│   ├── constants.ts       # API endpoint constants
-│   ├── auth.api.ts        # Authentication API calls
-│   ├── intake.api.ts      # Intake/Use case API calls
-│   └── chat.api.ts        # Chat API calls
-├── components/            # React components
-│   ├── auth/             # Authentication components
-│   │   ├── LoginForm.tsx
-│   │   └── OTPVerification.tsx
-│   ├── layout/           # Layout components
-│   │   ├── Header.tsx
-│   │   ├── Sidebar.tsx
-│   │   └── MainLayout.tsx
-│   ├── intake/           # Intake form components
-│   │   ├── IntakeForm.tsx
-│   │   └── SuggestedQuestions.tsx
-│   └── chat/             # Chat components
-│       ├── ChatArea.tsx
-│       ├── MessageBubble.tsx
-│       └── ChatInput.tsx
-├── context/              # React context providers
-│   └── AuthContext.tsx   # Authentication state management
-├── pages/                # Page components
-│   ├── Login.tsx
-│   └── Dashboard.tsx
-├── utils/                # Utility functions
-│   ├── localStorage.ts   # Token and user storage
-│   └── dateFormatter.ts  # Date formatting utilities
-├── App.tsx               # Main app with routing
-├── index.tsx             # App entry point
-├── index.html            # HTML template
-├── vite.config.ts        # Vite configuration
-└── tsconfig.json         # TypeScript configuration
-```
-
 ## 🔐 Authentication Flows
 
 ### **Signup Flow**
@@ -175,18 +134,6 @@ cold-storage-fe/
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 
-## 🌐 API Integration
-
-All API calls are managed through service files in the `api/` directory:
-
-- **Authentication:** `authAPI.sendOTP()`, `authAPI.verifyOTP()`
-- **Intake:** `intakeAPI.getUseCases()`, `intakeAPI.submitIntake()`
-- **Chat:** `chatAPI.askQuestion()`, `chatAPI.answerMCQ()`, `chatAPI.listSessions()`
-
-API client includes:
-- Automatic JWT token attachment
-- Token refresh on expiration
-- Error handling and retry logic
 
 ## 🛠️ Technologies Used
 
@@ -201,28 +148,8 @@ API client includes:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `VITE_API_URL` | Backend API base URL | `http://localhost:8000/api` |
+| `VITE_API_URL` | Backend API base URL |
 
-## 🚧 Future Enhancements
 
-- [ ] WebSocket integration for real-time updates
-- [ ] Dark mode support
-- [ ] Export chat history
-- [ ] Voice input/output
-- [ ] Multi-language support
-- [ ] Advanced analytics dashboard
-
-## 📄 License
-
-This project is proprietary and confidential.
-
-## 👥 Support
-
-For questions or issues, contact:
-- Backend Developer: [Contact Info]
-- Frontend Developer: [Contact Info]
-- Project Manager: [Contact Info]
-
----
 
 **Built with ❤️ for Cold Storage Advisory**
