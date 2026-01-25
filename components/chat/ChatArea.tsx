@@ -38,13 +38,9 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
   const [displayedWelcome, setDisplayedWelcome] = useState<string>('');
   const [isWelcomeTyping, setIsWelcomeTyping] = useState(false);
   const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
-  const [activeSuggestions, setActiveSuggestions] = useState<string[]>(suggestedQuestions);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    setActiveSuggestions(suggestedQuestions);
-  }, [suggestedQuestions]);
 
   useEffect(() => {
     if (sessionId) {
@@ -53,7 +49,6 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
     } else {
       setMessages([]);
       setRemainingQuestions(4);
-      setActiveSuggestions(suggestedQuestions);
       setCanAskQuestion(true);
       setWelcomeMessage('');
       setDisplayedWelcome('');
@@ -147,14 +142,6 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       setRemainingQuestions(response.data.session.remaining_questions);
       setCanAskQuestion(response.data.session.can_ask_question);
 
-      // User requirement: if only 1 message, show its suggested questions.
-      // Else if more than 1, hide suggestions.
-      if (historyMessages.length === 1) {
-        setActiveSuggestions(historyMessages[0].suggested_questions || []);
-      } else if (historyMessages.length > 1) {
-        setActiveSuggestions([]);
-      }
-
       // Check if waiting for MCQ response
       const lastMessage = historyMessages[historyMessages.length - 1];
       if (lastMessage?.mcq_options && !lastMessage.mcq_selected_option) {
@@ -187,7 +174,6 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
     setMessages(prev => [...prev, tempUserMessage]);
     setIsLoading(true);
     setError(null); // Clear previous errors
-    setActiveSuggestions([]); // Clear suggestions once user sends a message
 
     // Call async API (it handles polling internally)
     const result = await chatAPI.askQuestion(question, sessionId);
@@ -279,7 +265,6 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
     setIsLoading(true);
     setWaitingForMCQ(false);
     setError(null); // Clear previous errors
-    setActiveSuggestions([]);
 
     // Call async API (it handles polling internally)
     const result = await chatAPI.answerMCQ(currentMCQMessageId, selectedValue);
@@ -557,24 +542,6 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
               </div>
             )}
 
-            {/* Starting Suggestions */}
-            {activeSuggestions.length > 0 && messages.length < 2 && !isLoading && (
-              <div className="mt-8 animate-slide-in-bottom">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 pl-1">Starting suggestions</p>
-                <div className="flex flex-wrap gap-2">
-                  {activeSuggestions.map((question, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleSendMessage(question)}
-                      className="px-4 py-2 bg-white border border-emerald-100 text-emerald-700 rounded-full text-sm font-semibold hover:border-emerald-500 hover:bg-emerald-50 transition-all shadow-sm active:scale-95"
-                    >
-                      {question}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-            
             <div ref={messagesEndRef} />
           </div>
         ) : (
