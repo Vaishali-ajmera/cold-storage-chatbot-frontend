@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { MainLayout } from '../components/layout/MainLayout';
 import { IntakeForm } from '../components/intake/IntakeForm';
 import { ChatArea } from '../components/chat/ChatArea';
@@ -6,9 +7,26 @@ import { ChatArea } from '../components/chat/ChatArea';
 type DashboardView = 'intake' | 'chat';
 
 export const Dashboard: React.FC = () => {
+  const location = useLocation();
   const [currentView, setCurrentView] = useState<DashboardView>('intake');
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
+
+  // Listen for navigation state (e.g., from TransitionScreen)
+  useEffect(() => {
+    if (location.state) {
+      const { sessionId, suggestedQuestions: questions, view } = location.state as any;
+      if (sessionId) {
+        setCurrentSessionId(sessionId);
+      }
+      if (questions) {
+        setSuggestedQuestions(questions);
+      }
+      if (view === 'chat') {
+        setCurrentView('chat');
+      }
+    }
+  }, [location]);
 
   const handleIntakeComplete = (sessionId: string, questions: string[]) => {
     // Set the session ID from intake response

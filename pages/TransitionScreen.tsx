@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { intakeAPI } from '../api/intake.api';
+import { chatAPI } from '../api/chat.api';
 
 export const TransitionScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -19,21 +20,25 @@ export const TransitionScreen: React.FC = () => {
       }
 
       try {
+        // 1. Submit Intake
         const response = await intakeAPI.submitIntake(userChoice, intakeData);
         const sessionId = response.data.session_id;
         const questionTexts = response.data.suggested_questions.map((q: any) => q.text);
         
-        // Success - navigate to dashboard with chat
+        // 2. Call History API as requested by user to "open" the session
+        await chatAPI.getChatHistory(sessionId);
+        
+        // 3. Success - navigate to dashboard with chat state
         navigate('/dashboard', { 
           state: { 
             sessionId, 
             suggestedQuestions: questionTexts,
-            showChat: true 
+            view: 'chat'
           },
           replace: true
         });
       } catch (err: any) {
-        console.error('Failed to submit intake:', err);
+        console.error('Failed to submit intake process:', err);
         setError(err.response?.data?.message || 'Something went wrong. Please try again.');
         setIsSubmitting(false);
       }

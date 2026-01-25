@@ -14,7 +14,7 @@ export interface ChatMessage {
   sequence_number: number;
   sender: 'user' | 'bot';
   message_text: string;
-  message_type: 'question' | 'response' | 'mcq_response';
+  message_type: 'question' | 'response' | 'mcq_response' | 'bot_answer';
   suggested_questions: string[] | null;
   mcq_options: MCQOption | null;
   mcq_selected_option: string | null;
@@ -42,18 +42,16 @@ interface TaskSubmitResponse {
 
 interface TaskStatusResponse {
   task_id: string;
-  status: TaskStatus;
+  task_status: TaskStatus;
+  session_id?: string;
+  type?: 'answer' | 'meta' | 'mcq' | 'rejection' | 'text';
+  response_message?: string;
+  suggestions?: string[] | null;
+  mcq?: MCQOption | null;
+  mcq_message_id?: string | null;
+  remaining_daily_questions?: number;
   message?: string;
   error?: string;
-  data?: {
-    session_id: string;
-    type: 'answer' | 'meta' | 'mcq' | 'rejection' | 'text';
-    response_message: string;
-    suggestions: string[] | null;
-    mcq: MCQOption | null;
-    mcq_message_id: string | null;
-    remaining_questions: number;
-  };
 }
 
 export interface AsyncChatResult {
@@ -143,24 +141,23 @@ const pollTaskResult = async (taskId: string, sessionId: string): Promise<AsyncC
       console.log('Full response:', JSON.stringify(response.data, null, 2));
       
       const taskData = response.data.data; // This gets the TaskStatusResponse
-      console.log('Task status:', taskData.status);
-      console.log('Task data:', taskData.data);
+      console.log('Task status:', taskData.task_status);
       
-      if (taskData.status === 'SUCCESS' && taskData.data) {
+      if (taskData.task_status === 'SUCCESS') {
         console.log('✅ SUCCESS - Returning result');
         return {
           success: true,
-          sessionId: taskData.data.session_id,
-          type: taskData.data.type,
-          message: taskData.data.response_message,
-          suggestions: taskData.data.suggestions || [],
-          mcq: taskData.data.mcq,
-          mcqMessageId: taskData.data.mcq_message_id,
-          remainingQuestions: taskData.data.remaining_questions,
+          sessionId: taskData.session_id,
+          type: taskData.type,
+          message: taskData.response_message,
+          suggestions: taskData.suggestions || [],
+          mcq: taskData.mcq,
+          mcqMessageId: taskData.mcq_message_id,
+          remainingQuestions: taskData.remaining_daily_questions,
         };
       }
       
-      if (taskData.status === 'FAILURE') {
+      if (taskData.task_status === 'FAILURE') {
         console.error('❌ FAILURE - Task failed:', taskData.error);
         return {
           success: false,
@@ -169,7 +166,7 @@ const pollTaskResult = async (taskId: string, sessionId: string): Promise<AsyncC
       }
       
       // Still pending
-      console.log('⏳ Still polling... Status:', taskData.status);
+      console.log('⏳ Still polling... Status:', taskData.task_status);
       await sleep(POLL_INTERVAL_MS);
       
     } catch (err) {

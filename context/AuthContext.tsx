@@ -9,7 +9,11 @@ interface AuthContextType {
   signup: (userData: SignupRequest) => Promise<{ success: boolean; error?: any }>;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: any }>;
   logout: () => void;
-  updateProfile: (userData: { first_name?: string; last_name?: string }) => Promise<void>;
+  updateProfile: (userData: { 
+    first_name?: string; 
+    last_name?: string;
+    preferred_language?: string;
+  }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -93,7 +97,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null);
   };
 
-  const updateProfile = async (userData: { first_name?: string; last_name?: string }) => {
+  const updateProfile = async (userData: { 
+    first_name?: string; 
+    last_name?: string;
+    preferred_language?: string;
+  }) => {
     try {
       const response = await authAPI.updateUserProfile(userData);
       const updatedUser = response.data;

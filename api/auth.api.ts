@@ -20,6 +20,8 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
+  preferred_language: string;
+  has_set_preferences: boolean;
   date_joined?: string;
 }
 
@@ -152,6 +154,7 @@ export const authAPI = {
   updateUserProfile: async (userData: {
     first_name?: string;
     last_name?: string;
+    preferred_language?: string;
   }): Promise<UserProfileResponse> => {
     const response = await apiClient.post(AUTH_ENDPOINTS.USER_PROFILE, userData);
     return response.data;
