@@ -24,6 +24,7 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
   const [remainingQuestions, setRemainingQuestions] = useState(4);
   const [canAskQuestion, setCanAskQuestion] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [waitingForMCQ, setWaitingForMCQ] = useState(false);
   const [currentMCQMessageId, setCurrentMCQMessageId] = useState<string | null>(null);
   const [showIntakeModal, setShowIntakeModal] = useState(false);
@@ -81,6 +82,16 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       }
     }
   }, [welcomeMessage, displayedWelcome, isWelcomeTyping]);
+
+  // Auto-dismiss error toast after 5 seconds
+  useEffect(() => {
+    if (error) {
+      const timeout = setTimeout(() => {
+        setError(null);
+      }, 5000);
+      return () => clearTimeout(timeout);
+    }
+  }, [error]);
 
   // Handle creating a new chat session
   const handleCreateNewSession = async () => {
@@ -161,62 +172,67 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
 
     setMessages(prev => [...prev, tempUserMessage]);
     setIsLoading(true);
+    setError(null); // Clear previous errors
 
-    try {
-      const response = await chatAPI.askQuestion(question, sessionId);
+    // Call async API (it handles polling internally)
+    const result = await chatAPI.askQuestion(question, sessionId);
+    
+    if (!result.success) {
+      console.error('Failed to send message:', result.error);
       
-      // If new session created, notify parent
-      if (!sessionId && response.data?.session_id) {
-        onSessionCreated(response.data.session_id);
-      }
-
-      if (response.data) {
-        // Update remaining questions
-        setRemainingQuestions(response.data.remaining_questions);
-
-        // Add bot response
-        const botMessage: ChatMessage = {
-          id: response.data.mcq_message_id || `bot-${Date.now()}`,
-          sequence_number: messages.length + 2,
-          sender: 'bot',
-          message_text: response.data.response_message,
-          message_type: 'response',
-          suggested_questions: response.data.suggestions,
-          mcq_options: response.data.mcq,
-          mcq_selected_option: null,
-          created_at: new Date().toISOString(),
-        };
-
-        setMessages(prev => [...prev.slice(0, -1), tempUserMessage, botMessage]);
-        
-        // Start typing effect for the new bot message
-        setTypingMessageId(botMessage.id);
-
-        // Check if MCQ
-        if (response.data.type === 'mcq' && response.data.mcq_message_id) {
-          setWaitingForMCQ(true);
-          setCurrentMCQMessageId(response.data.mcq_message_id);
-        }
-
-        // Check if limit reached
-        if (response.data.remaining_questions === 0) {
-          setCanAskQuestion(false);
-        }
-      }
-    } catch (error: any) {
-      console.error('Failed to send message:', error);
-      
-      // Check if limit reached error
-      if (error.response?.data?.message?.includes('maximum')) {
+      // Check if session limit reached
+      if (result.isSessionLimitReached) {
         setCanAskQuestion(false);
         setRemainingQuestions(0);
       }
       
       // Remove optimistic message on error
       setMessages(prev => prev.slice(0, -1));
-    } finally {
+      setError(result.error || 'Something went wrong. Please try again later.');
       setIsLoading(false);
+      return;
     }
+
+    // If new session created, notify parent
+    if (!sessionId && result.sessionId) {
+      onSessionCreated(result.sessionId);
+    }
+
+    // Update remaining questions
+    if (result.remainingQuestions !== undefined) {
+      setRemainingQuestions(result.remainingQuestions);
+    }
+
+    // Add bot response
+    const botMessage: ChatMessage = {
+      id: result.mcqMessageId || `bot-${Date.now()}`,
+      sequence_number: messages.length + 2,
+      sender: 'bot',
+      message_text: result.message || '',
+      message_type: 'response',
+      suggested_questions: result.suggestions || null,
+      mcq_options: result.mcq || null,
+      mcq_selected_option: null,
+      created_at: new Date().toISOString(),
+    };
+
+    setMessages(prev => [...prev.slice(0, -1), tempUserMessage, botMessage]);
+    
+    // Start typing effect for the new bot message
+    setTypingMessageId(botMessage.id);
+
+    // Check if MCQ
+    if (result.type === 'mcq' && result.mcqMessageId) {
+      setWaitingForMCQ(true);
+      setCurrentMCQMessageId(result.mcqMessageId);
+    }
+
+    // Check if limit reached
+    if (result.remainingQuestions === 0) {
+      setCanAskQuestion(false);
+    }
+
+    setIsLoading(false);
   };
 
   const handleMCQSelect = async (messageId: string, selectedValue: string) => {
@@ -231,41 +247,74 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
       )
     );
 
+    // Add user message for the selected option
+    const userMessage: ChatMessage = {
+      id: `user-mcq-${Date.now()}`,
+      sequence_number: messages.length + 1,
+      sender: 'user',
+      message_text: selectedValue,
+      message_type: 'mcq_response',
+      suggested_questions: null,
+      mcq_options: null,
+      mcq_selected_option: null,
+      created_at: new Date().toISOString(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
     setWaitingForMCQ(false);
+    setError(null); // Clear previous errors
 
-    try {
-      const response = await chatAPI.answerMCQ(currentMCQMessageId, selectedValue);
-      
-      setRemainingQuestions(response.data.remaining_questions);
-      setCurrentMCQMessageId(null);
-
-      // Add bot follow-up response
-      const botMessage: ChatMessage = {
-        id: `bot-${Date.now()}`,
-        sequence_number: messages.length + 1,
-        sender: 'bot',
-        message_text: response.data.message,
-        message_type: 'response',
-        suggested_questions: response.data.suggestions,
-        mcq_options: null,
-        mcq_selected_option: null,
-        created_at: new Date().toISOString(),
-      };
-
-      setMessages(prev => [...prev, botMessage]);
-      
-      // Start typing effect for the new bot message
-      setTypingMessageId(botMessage.id);
-
-      if (response.data.remaining_questions === 0) {
-        setCanAskQuestion(false);
-      }
-    } catch (error) {
-      console.error('Failed to submit MCQ response:', error);
-    } finally {
+    // Call async API (it handles polling internally)
+    const result = await chatAPI.answerMCQ(currentMCQMessageId, selectedValue);
+    
+    if (!result.success) {
+      console.error('Failed to submit MCQ response:', result.error);
+      // Remove the user message on error
+      setMessages(prev => prev.filter(msg => msg.id !== userMessage.id));
+      // Restore MCQ waiting state
+      setWaitingForMCQ(true);
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.id === messageId
+            ? { ...msg, mcq_selected_option: null }
+            : msg
+        )
+      );
+      setError(result.error || 'Something went wrong. Please try again later.');
       setIsLoading(false);
+      return;
     }
+
+    // Update remaining questions
+    if (result.remainingQuestions !== undefined) {
+      setRemainingQuestions(result.remainingQuestions);
+    }
+    setCurrentMCQMessageId(null);
+
+    // Add bot follow-up response
+    const botMessage: ChatMessage = {
+      id: `bot-${Date.now()}`,
+      sequence_number: messages.length + 2,
+      sender: 'bot',
+      message_text: result.message || '',
+      message_type: 'response',
+      suggested_questions: result.suggestions || null,
+      mcq_options: null,
+      mcq_selected_option: null,
+      created_at: new Date().toISOString(),
+    };
+
+    setMessages(prev => [...prev, botMessage]);
+    
+    // Start typing effect for the new bot message
+    setTypingMessageId(botMessage.id);
+
+    if (result.remainingQuestions === 0) {
+      setCanAskQuestion(false);
+    }
+
+    setIsLoading(false);
   };
 
   const handleViewIntake = async () => {
@@ -554,6 +603,26 @@ export const ChatArea: React.FC<ChatAreaProps> = ({
         intakeData={intakeData}
         userChoice={userChoice}
       />
+
+      {/* Error Toast */}
+      {error && (
+        <div className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-50 animate-slide-up">
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 max-w-sm">
+            <svg className="w-5 h-5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="text-sm font-medium">{error}</span>
+            <button 
+              onClick={() => setError(null)}
+              className="ml-auto p-1 hover:bg-red-100 rounded-full transition-colors"
+            >
+              <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -22,4 +22,5 @@ export const CHAT_ENDPOINTS = {
   GET_HISTORY: (sessionId: string) => `/history/${sessionId}/`,
   UPDATE_TITLE: (sessionId: string) => `/sessions/${sessionId}/title/`,
   GET_SESSION_INTAKE: (sessionId: string) => `/sessions/${sessionId}/intake/`,
+  TASK_STATUS: (taskId: string) => `/task/${taskId}/status/`,
 };

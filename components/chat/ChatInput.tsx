@@ -1,4 +1,39 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+
+// Extend Window interface for SpeechRecognition
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+  resultIndex: number;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message: string;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognition;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  }
+}
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -14,8 +49,62 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   isLoading = false,
 }) => {
   const [message, setMessage] = useState('');
+  const [isListening, setIsListening] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const baseTextRef = useRef<string>(''); // Store text before speech recognition starts
 
+  // Check for Speech Recognition support
+  useEffect(() => {
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognitionAPI) {
+      setSpeechSupported(true);
+      const recognition = new SpeechRecognitionAPI();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        let fullTranscript = '';
+
+        // Build the full transcript from all results
+        for (let i = 0; i < event.results.length; i++) {
+          fullTranscript += event.results[i][0].transcript;
+        }
+
+        // Combine base text with current transcript
+        const baseText = baseTextRef.current;
+        const separator = baseText && !baseText.endsWith(' ') ? ' ' : '';
+        setMessage(baseText + separator + fullTranscript);
+      };
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        // Update base text to include the transcribed text after speech ends
+        // This way if user speaks again, it appends to the previous content
+      };
+
+      recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+    };
+  }, []);
+
+  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -23,11 +112,28 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     }
   }, [message]);
 
+  const toggleListening = useCallback(() => {
+    if (!recognitionRef.current) return;
+
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      // Save current message as base text before starting recognition
+      baseTextRef.current = message;
+      recognitionRef.current.start();
+    }
+  }, [isListening, message]);
+
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (message.trim() && !disabled && !isLoading) {
+      // Stop listening if active
+      if (isListening && recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
       onSend(message.trim());
       setMessage('');
+      baseTextRef.current = ''; // Reset base text
     }
   };
 
@@ -57,7 +163,9 @@ export const ChatInput: React.FC<ChatInputProps> = ({
           </div>
         )} */}
 
-        <div className="flex items-center gap-3 p-1.5 bg-gray-100 rounded-full border border-gray-200 transition-all">
+        <div className={`flex items-center gap-3 p-1.5 bg-gray-100 rounded-full border transition-all ${
+          isListening ? 'border-red-400 ring-2 ring-red-100' : 'border-gray-200'
+        }`}>
           {/* Attachment Button */}
           <button
             type="button"
@@ -74,7 +182,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type here..."
+            placeholder={isListening ? "Listening..." : "Type here..."}
             disabled={disabled || isLoading}
             rows={1}
             className="flex-1 outline-none bg-transparent px-1 py-1 text-sm text-gray-900 placeholder:text-gray-400 border-none focus:ring-0 resize-none max-h-32 overflow-y-auto scrollbar-hide"
@@ -82,14 +190,27 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 
           {/* Grouped Actions: Voice & Send */}
           <div className="flex items-center gap-2 pr-1">
-            <button
-              type="button"
-              className="p-2 text-gray-500 hover:text-emerald-600 transition-colors rounded-full"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-              </svg>
-            </button>
+            {speechSupported && (
+              <button
+                type="button"
+                onClick={toggleListening}
+                disabled={disabled || isLoading}
+                className={`relative p-2 transition-all rounded-full ${
+                  isListening 
+                    ? 'text-red-500 bg-red-50' 
+                    : 'text-gray-500 hover:text-emerald-600'
+                } ${disabled || isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                title={isListening ? 'Stop recording' : 'Start voice input'}
+              >
+                {/* Pulsing animation when listening */}
+                {isListening && (
+                  <span className="absolute inset-0 rounded-full bg-red-400 animate-ping opacity-25" />
+                )}
+                <svg className="w-4 h-4 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+              </button>
+            )}
 
             <button
               onClick={() => handleSubmit()}

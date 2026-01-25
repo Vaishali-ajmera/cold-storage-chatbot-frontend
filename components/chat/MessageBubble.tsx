@@ -141,22 +141,6 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                 </p>
               )}
 
-              {/* Show selected option as user message */}
-              {message.mcq_selected_option && (
-                <div className="flex justify-end mb-4">
-                  <div className="flex gap-3 max-w-[85%] md:max-w-[75%] flex-row-reverse">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-white/50 bg-[#10B981] text-white">
-                      <span className="text-[9px] font-bold">YOU</span>
-                    </div>
-                    <div className="px-4 py-3 bg-emerald-600 text-white rounded-2xl rounded-tr-sm">
-                      <div className="text-sm leading-relaxed">
-                        {message.mcq_selected_option}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Show options only if not yet selected */}
               {!message.mcq_selected_option && (
                 <>
@@ -171,6 +155,16 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                     </div>
                   ))}
                 </>
+              )}
+
+              {/* Show selected option as a styled indicator (not as a user message) */}
+              {message.mcq_selected_option && (
+                <div className="flex items-center gap-2 text-sm text-emerald-600 font-medium">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span>Selected: {message.mcq_selected_option}</span>
+                </div>
               )}
             </div>
           )}
