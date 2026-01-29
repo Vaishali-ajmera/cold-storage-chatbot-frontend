@@ -6,6 +6,7 @@ export const AUTH_ENDPOINTS = {
   RESET_PASSWORD: '/reset-password/',
   REFRESH_TOKEN: '/token/refresh/',
   USER_PROFILE: '/user/profile/',
+  SSO_VERIFY: '/sso/verify-token/',
 };
 
 // Intake endpoints
@@ -23,4 +24,11 @@ export const CHAT_ENDPOINTS = {
   UPDATE_TITLE: (sessionId: string) => `/sessions/${sessionId}/title/`,
   GET_SESSION_INTAKE: (sessionId: string) => `/sessions/${sessionId}/intake/`,
   TASK_STATUS: (taskId: string) => `/task/${taskId}/status/`,
+};
+
+// Settings endpoints
+export const SETTINGS_ENDPOINTS = {
+  CONFIG: '/settings/config/',
+  CHOICES: '/settings/config/choices/',
+  STATS: '/settings/stats/',
 };

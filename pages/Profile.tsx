@@ -90,7 +90,8 @@ export const Profile: React.FC = () => {
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full px-5 py-4 bg-gray-50 border-transparent focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 rounded-2xl transition-all font-semibold text-gray-900 outline-none"
+                    readOnly={user?.is_sso_user}
+                    className={`w-full px-5 py-4 bg-gray-50 border-transparent focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 rounded-2xl transition-all font-semibold text-gray-900 outline-none ${user?.is_sso_user ? 'cursor-not-allowed text-gray-500' : ''}`}
                     placeholder="Enter first name"
                     required
                   />
@@ -103,7 +104,8 @@ export const Profile: React.FC = () => {
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="w-full px-5 py-4 bg-gray-50 border-transparent focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 rounded-2xl transition-all font-semibold text-gray-900 outline-none"
+                    readOnly={user?.is_sso_user}
+                    className={`w-full px-5 py-4 bg-gray-50 border-transparent focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/5 rounded-2xl transition-all font-semibold text-gray-900 outline-none ${user?.is_sso_user ? 'cursor-not-allowed text-gray-500' : ''}`}
                     placeholder="Enter last name"
                     required
                   />
@@ -183,7 +185,7 @@ export const Profile: React.FC = () => {
                 {isSubmitting ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
-                  <span>Save Changes</span>
+                  <span>{user?.is_sso_user ? 'Update Preferences' : 'Save Changes'}</span>
                 )}
               </button>
               

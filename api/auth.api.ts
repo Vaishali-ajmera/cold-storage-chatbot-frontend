@@ -22,6 +22,8 @@ export interface User {
   last_name: string;
   preferred_language: string;
   has_set_preferences: boolean;
+  is_admin: boolean;
+  is_sso_user: boolean;
   date_joined?: string;
 }
 
@@ -157,6 +159,14 @@ export const authAPI = {
     preferred_language?: string;
   }): Promise<UserProfileResponse> => {
     const response = await apiClient.post(AUTH_ENDPOINTS.USER_PROFILE, userData);
+    return response.data;
+  },
+
+  /**
+   * Verify SSO token
+   */
+  ssoVerify: async (token: string): Promise<LoginResponse> => {
+    const response = await apiClient.post(AUTH_ENDPOINTS.SSO_VERIFY, { token });
     return response.data;
   },
 };

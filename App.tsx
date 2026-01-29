@@ -6,7 +6,11 @@ import { Signup } from './pages/Signup';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { Dashboard } from './pages/Dashboard';
 import { TransitionScreen } from './pages/TransitionScreen';
+import { SSOLogin } from './pages/SSOLogin';
+import { AdminSettings } from './pages/AdminSettings';
+import { AdminStats } from './pages/AdminStats';
 import { PreferenceModal } from './components/auth/PreferenceModal';
+import { AdminRoute } from './components/auth/AdminRoute';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -78,6 +82,7 @@ const AppContent: React.FC = () => {
             </PublicRoute>
           }
         />
+        <Route path="/sso-login" element={<SSOLogin />} />
         
         {/* Protected Routes */}
         <Route
@@ -104,6 +109,12 @@ const AppContent: React.FC = () => {
             </ProtectedRoute>
           }
         />
+
+        {/* Admin Routes */}
+        <Route element={<AdminRoute />}>
+          <Route path="/admin/settings" element={<AdminSettings />} />
+          <Route path="/admin/stats" element={<AdminStats />} />
+        </Route>
         
         {/* Default Redirects */}
         <Route path="/" element={<Navigate to="/cold-storage-advisory" replace />} />

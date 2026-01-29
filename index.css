@@ -402,9 +402,22 @@ textarea::placeholder {
   to { transform: rotate(360deg); }
 }
 
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
 .animate-fade-in { animation: fade-in var(--transition-normal) forwards; }
 .animate-slide-up { animation: slide-up var(--transition-slow) forwards; }
 .animate-zoom-in { animation: zoom-in var(--transition-slow) forwards; }
+.animate-spin-slow { animation: spin-slow 8s linear infinite; }
+.animate-shake { animation: shake 0.4s ease-in-out; }
 
 /* ================== LOADERS ================== */
 .spinner {

@@ -8,6 +8,7 @@ interface AuthContextType {
   isLoading: boolean;
   signup: (userData: SignupRequest) => Promise<{ success: boolean; error?: any }>;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: any }>;
+  ssoLogin: (token: string) => Promise<{ success: boolean; user?: User; error?: any }>;
   logout: () => void;
   updateProfile: (userData: { 
     first_name?: string; 
@@ -92,6 +93,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const ssoLogin = async (token: string) => {
+    try {
+      const response = await authAPI.ssoVerify(token);
+      const { user: loggedInUser, access, refresh } = response.data;
+      
+      setTokens(access, refresh);
+      saveUser(loggedInUser);
+      setUser(loggedInUser);
+      
+      return { success: true, user: loggedInUser };
+    } catch (error: any) {
+      console.error('SSO login error:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.message || error.response?.data?.error || 'SSO authentication failed'
+      };
+    }
+  };
+
   const logout = () => {
     clearTokens();
     setUser(null);
@@ -122,6 +142,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isLoading,
         signup,
         login,
+        ssoLogin,
         logout,
         updateProfile,
       }}
