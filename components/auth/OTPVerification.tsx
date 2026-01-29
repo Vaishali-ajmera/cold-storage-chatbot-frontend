@@ -74,7 +74,7 @@ export const OTPVerification: React.FC<OTPVerificationProps> = ({ email, onBack 
 
     try {
       await login(email, otpCode);
-      navigate('/dashboard');
+      navigate('/cold-storage-advisory');
     } catch (err: any) {
       setError(err.message);
       setOtp(['', '', '', '', '', '']);

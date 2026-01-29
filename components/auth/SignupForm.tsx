@@ -92,7 +92,7 @@ export const SignupForm: React.FC = () => {
     const result = await signup(formData);
 
     if (result.success) {
-      navigate('/dashboard');
+      navigate('/cold-storage-advisory');
     } else {
       // Handle backend error messages
       const backendError = result.error;

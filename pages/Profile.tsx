@@ -70,7 +70,7 @@ export const Profile: React.FC = () => {
             </div>
             
             <button 
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/cold-storage-advisory')}
               className="p-2 hover:bg-white rounded-xl border border-transparent hover:border-gray-200 transition-all text-gray-400 hover:text-gray-900"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +189,7 @@ export const Profile: React.FC = () => {
               
               <button
                 type="button"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/cold-storage-advisory')}
                 className="flex-1 py-4 bg-white text-gray-600 border border-gray-200 rounded-[22px] font-bold hover:bg-gray-50 active:scale-[0.98] transition-all"
               >
                 Cancel
@@ -209,7 +209,7 @@ export const Profile: React.FC = () => {
               <p className="text-emerald-100 text-sm font-medium">Your preferences help us tailor the best storage solutions for you.</p>
             </div>
             <button 
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/cold-storage-advisory')}
               className="px-6 py-3 bg-white text-emerald-600 rounded-xl font-bold text-sm whitespace-nowrap z-10 hover:bg-emerald-50 transition-colors"
             >
               Back to Dashboard

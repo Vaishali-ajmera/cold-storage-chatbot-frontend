@@ -43,7 +43,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     );
   }
 
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <>{children}</>;
+  return isAuthenticated ? <Navigate to="/cold-storage-advisory" replace /> : <>{children}</>;
 };
 
 import { Profile } from './pages/Profile';
@@ -81,7 +81,7 @@ const AppContent: React.FC = () => {
         
         {/* Protected Routes */}
         <Route
-          path="/dashboard"
+          path="/cold-storage-advisory"
           element={
             <ProtectedRoute>
               <Dashboard />
@@ -106,8 +106,8 @@ const AppContent: React.FC = () => {
         />
         
         {/* Default Redirects */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to="/cold-storage-advisory" replace />} />
+        <Route path="*" element={<Navigate to="/cold-storage-advisory" replace />} />
       </Routes>
     </>
   );

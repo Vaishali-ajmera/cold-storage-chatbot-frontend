@@ -29,7 +29,7 @@ export const TransitionScreen: React.FC = () => {
         await chatAPI.getChatHistory(sessionId);
         
         // 3. Success - navigate to dashboard with chat state
-        navigate('/dashboard', { 
+        navigate('/cold-storage-advisory', { 
           state: { 
             sessionId, 
             suggestedQuestions: questionTexts,

@@ -35,7 +35,7 @@ export const GlobalHeader: React.FC<GlobalHeaderProps> = ({
           <div className="flex items-center gap-3">
             <div 
               className="flex items-center gap-2 cursor-pointer"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/cold-storage-advisory')}
             >
               <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center font-black text-white text-sm shadow-lg shadow-emerald-100">PG</div>
               <span className="text-lg font-bold tracking-tight text-gray-900 hidden sm:block">Potato Guru AI</span>
@@ -71,9 +71,9 @@ export const GlobalHeader: React.FC<GlobalHeaderProps> = ({
                   <span className="text-[11px] font-bold text-gray-900 leading-tight">
                     {user?.first_name || 'My Account'}
                   </span>
-                  <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">
+                  {/* <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest leading-none">
                     Settings
-                  </span>
+                  </span> */}
                 </div>
                 <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
@@ -85,10 +85,10 @@ export const GlobalHeader: React.FC<GlobalHeaderProps> = ({
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setIsMenuOpen(false)} />
                   <div className="absolute right-0 mt-3 w-56 bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/50 p-2 z-50 animate-zoom-in">
-                    <div className="px-4 py-3 border-b border-gray-50 mb-1">
+                    {/* <div className="px-4 py-3 border-b border-gray-50 mb-1">
                       <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-0.5">Signed in as</p>
                       <p className="text-sm font-bold text-gray-900 truncate">{user?.email}</p>
-                    </div>
+                    </div> */}
 
                     <button 
                       onClick={() => { setIsMenuOpen(false); navigate('/profile'); }}
